@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>LightMC.light-host.pl - Taryfikator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: #f4f4f4;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            background-color: rgba(255, 255, 255, 0);
+            gap: 40px;
+        }
+
+        nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+
+        nav a.clicked {
+            color: #0055ff;
+        }
+
+        .logo {
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 70px;
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes logo-wave {
+            0% { transform: skewX(0deg); }
+            25% { transform: skewX(-10deg); }
+            50% { transform: skewX(10deg); }
+            75% { transform: skewX(-10deg); }
+            100% { transform: skewX(0deg); }
+        }
+
+        .logo.animate img {
+            animation: logo-wave 1.5s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .logo {
+                margin: 10px 0;
+            }
+        }
+
+        .taryfikator-container {
+            max-width: 900px;
+            background: #fff;
+            border: 4px dashed #222;
+            padding: 20px;
+            margin: 40px auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            position: relative; /* Potrzebne do pozycjonowania przycisku */
+            padding-bottom: 90px; /* Zwiększony padding, aby zmieścić przycisk */
+        }
+
+        .taryfikator-container h1 {
+            font-size: 12px;
+            color: #d400ff;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px #000;
+        }
+
+        .taryfikator-container p {
+            font-size: 8px;
+            line-height: 1.8;
+            color: #222;
+            margin: 5px 0;
+        }
+
+        .taryfikator-section {
+            margin-bottom: 25px;
+        }
+
+        .taryfikator-section strong {
+            display: block;
+            margin-bottom: 10px;
+            color: #0055ff;
+        }
+
+        /* Styl dla pojedynczego przycisku Regulamin, przeniesiony */
+        .regulamin-button-bottom { /* Zmieniono nazwę klasy, aby uniknąć kolizji */
+            display: block; /* Ustawienie na blok, aby zajął całą szerokość i centrował się marginesem auto */
+            background-color: #009900; /* Zielony kolor dla REGULAMIN */
+            color: #fff;
+            border: 2px solid #000;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            width: fit-content; /* Dopasowanie szerokości do zawartości */
+            margin: 40px auto 20px auto; /* Centrowanie i odstęp od góry i dołu */
+            position: absolute; /* Pozycjonowanie absolutne */
+            bottom: -50px; /* Przesunięcie przycisku pod kontener regulaminu */
+            left: 50%;
+            transform: translateX(-50%); /* Centrowanie poziome */
+            z-index: 10; /* Upewnienie się, że przycisk jest na wierzchu */
+            white-space: nowrap; /* Zapobieganie zawijaniu tekstu */
+        }
+
+        .regulamin-button-bottom:hover {
+            transform: translate(calc(-50% + 2px), 2px); /* Przesunięcie na hover, uwzględniając transformX */
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Footer Styles from index.html and regulamin.html */
+        .footer {
+            background-color: #f4f4f4; /* Same as body background */
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 2px solid #ddd; /* Light line at the top */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 80px; /* Zapewnia odstęp po przycisku */
+        }
+
+        .footer-logo img {
+            height: 60px; /* Slightly smaller logo in footer */
+            margin-bottom: 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center; /* Center main footer columns */
+            width: 100%;
+            max-width: 1000px; /* Max width for content alignment */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 50px; /* Gap between columns */
+            text-align: left; /* Default text alignment for columns */
+        }
+
+        .footer-column {
+            flex: 1; /* Distribute space evenly */
+            min-width: 200px; /* Minimum width for columns before wrapping */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center; /* Center items within columns */
+        }
+
+        .footer-column h3 {
+            font-size: 14px;
+            color: #000;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .footer-column a {
+            color: #666;
+            text-decoration: none;
+            font-size: 10px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-column a:hover {
+            color: #000;
+        }
+
+        .footer-social-media {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align social media list */
+            gap: 10px;
+        }
+
+        .footer-social-media h3 {
+            text-align: center;
+        }
+        
+        .footer-social-media ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: center; /* Center list items */
+        }
+
+        .footer-social-media ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer-social-media ul li a {
+            font-size: 10px;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-social-media ul li a:hover {
+            color: #000;
+        }
+
+        .footer-buttons-container {
+            display: flex;
+            gap: 20px; /* Space between buttons */
+            justify-content: center; /* Center the buttons */
+            width: 100%;
+            max-width: 400px; /* Limit width of button container */
+            margin-top: 20px;
+        }
+        
+        .footer-discord-button {
+            background-color: #3366ff; /* Blue color */
+            color: #fff;
+            border: 2px solid #000;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Allow padding and sizing */
+            flex: 1; /* Take up equal space */
+            text-align: center;
+        }
+
+        .footer-discord-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-text-normal { /* New style for normal font text */
+            font-family: Arial, sans-serif; /* Or any other sans-serif font you prefer for normal text */
+            font-size: 12px; /* Adjust as needed */
+            color: #666; /* Adjust color as needed */
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 20px; /* Space from buttons */
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .footer-column {
+                align-items: center;
+                text-align: center;
+            }
+            .footer-social-media ul {
+                text-align: center; /* Center social media links on small screens */
+            }
+            .footer-buttons-container {
+                flex-direction: column; /* Stack buttons on small screens */
+            }
+            .regulamin-button-bottom {
+                position: static; /* Usuń pozycjonowanie absolutne na małych ekranach */
+                transform: none; /* Usuń transformację na małych ekranach */
+                margin: 40px auto; /* Zachowaj marginesy do centrowania */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-link">STRONA GŁÓWNA</a>
+    <a href="regulamin.html" class="nav-link">REGULAMIN</a>
+    <div class="logo" id="logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="Anarchia Logo">
+    </div>
+    <a href="sklep.html" class="nav-link">SKLEP SERWEROWY</a>
+    <a href="info.html" class="nav-link">WAŻNE INFORMACJE</a>
+</nav>
+
+<div class="taryfikator-container">
+    <h1>📜 TARYFIKATOR LightMC.Light-host.pl</h1>
+
+    <div class="taryfikator-section">
+        <strong>⚔️ CHEATY / NIELEGALNE WSPOMAGACZE</strong>
+        <p>❌ Używanie cheatów (Killaura, Fly, X-Ray itp.) — <b>Ban 7 dni</b></p>
+        <p>❌ Posiadanie modów dających przewagę (np. minimapy z cave view) — <b>Ban 7 dni</b></p>
+        <p>❌ Próba ominięcia zabezpieczeń antycheat — <b>Ban 14 dni</b></p>
+    </div>
+
+    <div class="taryfikator-section">
+        <strong>📢 ZACHOWANIE NA CZACIE</strong>
+        <p>❌ Wulgaryzmy / przekleństwa — <b>Mute 30 minut – 2 godziny</b></p>
+        <p>❌ Spam / Flood — <b>Mute 15 minut – 1 godzina</b></p>
+        <p>❌ Reklama innych serwerów — <b>Ban permanentny</b></p>
+        <p>❌ Obrażanie graczy / staffu — <b>Mute 1 godzina – 1 dzień</b></p>
+    </div>
+
+    <div class="taryfikator-section">
+        <strong>👥 GRY ZESPOŁOWE I UCZCIWOŚĆ</strong>
+        <p>❌ Griefing poza dozwolonymi trybami — <b>Ban 3 dni – 7 dni</b></p>
+        <p>❌ Oszustwa (np. scam na /trade) — <b>Ban 3 dni – 14 dni</b></p>
+        <p>❌ Nadużywanie błędów (bug abuse) — <b>Ban 7 dni – permanentny</b></p>
+    </div>
+
+    <div class="taryfikator-section">
+        <strong>🛠️ ZACHOWANIE TECHNICZNE</strong>
+        <p>❌ Crashery / lagowanie serwera — <b>Ban permanentny</b></p>
+        <p>❌ Używanie altów (multikont) — <b>Ban 7 dni na alt + kara na główne konto</b></p>
+        <p>❌ Nielegalne automaty (np. autoclicker) — <b>Ban 3 dni – 7 dni</b></p>
+    </div>
+
+    <div class="taryfikator-section">
+        <strong>🧍 INNE</strong>
+        <p>❌ Podszywanie się pod administrację — <b>Ban 14 dni</b></p>
+        <p>❌ Nieprzestrzeganie poleceń administracji — <b>Kick / Ban do 3 dni</b></p>
+        <p>❌ Próba obejścia kary — <b>Ban permanentny</b></p>
+    </div>
+
+    <p style="text-align:center; font-size: 8px; margin-top: 30px;">
+        📌 Każda sytuacja jest rozpatrywana indywidualnie. Kary mogą być modyfikowane przez administrację w zależności od skali przewinienia i historii gracza.<br><br>
+        📧 Uważasz, że kara była niesłuszna? Napisz odwołanie na naszym Discordzie!
+    </p>
+
+    <a href="regulamin.html" class="regulamin-button-bottom">REGULAMIN</a>
+</div>
+
+<footer class="footer">
+    <div class="footer-logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="LightMC Logo">
+    </div>
+
+    <div class="footer-content">
+        <div class="footer-column footer-social-media">
+            <h3>SOCIAL MEDIA</h3>
+            <ul>
+                <li><a href="https://www.youtube.com/yourchannel" target="_blank">YOUTUBE</a></li>
+                <li><a href="https://dc.gg/lightmc.pl" target="_blank">DISCORD</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-buttons-container">
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+    </div>
+
+    <div class="footer-text-normal">
+        COPYRIGHT 2025 LIGHTMC.PL. WSZELKIE PRAWA ZASTRZEŻONE<br>
+        WYKONANIE SPACEHOUSE<br><br>
+        PL - Serwer LightMC.pl nie jest w żaden sposób powiązany z firmą Mojang lub Microsoft.<br>
+        EN - LightMC.pl server is not associated with Mojang or Microsoft in any way.
+    </div>
+</footer>
+
+<script>
+    const links = document.querySelectorAll('.nav-link');
+    links.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            link.classList.add('clicked');
+            setTimeout(() => {
+                link.classList.remove('clicked');
+                window.location.href = link.getAttribute('href');
+            }, 200);
+        });
+    });
+
+    const logo = document.getElementById('logo');
+    logo.addEventListener('mouseenter', () => {
+        logo.classList.add('animate');
+    });
+    logo.addEventListener('mouseleave', () => {
+        logo.classList.remove('animate');
+    });
+</script>
+
+</body>
+</html>

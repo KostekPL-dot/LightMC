@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>LightMC.light-host.pl - Sklep LightSMP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: #f4f4f4;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            background-color: rgba(255, 255, 255, 0);
+            gap: 40px;
+        }
+
+        nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+
+        nav a.clicked {
+            color: #0055ff;
+        }
+
+        .logo {
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 70px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Animacja "falowania" */
+        @keyframes logo-wave {
+            0% { transform: skewX(0deg); }
+            25% { transform: skewX(-10deg); }
+            50% { transform: skewX(10deg); }
+            75% { transform: skewX(-10deg); }
+            100% { transform: skewX(0deg); }
+        }
+
+        /* Klasa do animacji - powtarzana w nieskończoność */
+        .logo.animate img {
+            animation: logo-wave 1.5s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .logo {
+                margin: 10px 0;
+            }
+        }
+
+        /* Styl dla sekcji z liniami i tekstem pośrodku */
+        .section-with-lines {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 50px 20px; /* Odstęp od góry i dołu, oraz boki */
+            position: relative; /* Dla z-index na przycisku */
+        }
+
+        .line {
+            flex-grow: 1; /* Linia rozciąga się, aby wypełnić dostępną przestrzeń */
+            height: 2px;
+            background-color: #ddd; /* Szary kolor linii */
+        }
+
+        .section-title-button {
+            background-color: #f700ff; /* Różowy kolor dla "SKLEP TRYBU LIGHTSMP" */
+            color: #fff;
+            border: 2px solid #000;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            white-space: nowrap; /* Zapobiega zawijaniu tekstu */
+            margin: 0 20px; /* Odstęp od linii */
+            position: relative; /* Utrzymuje cień za przyciskiem */
+            z-index: 1; /* Upewnia się, że przycisk jest na wierzchu linii */
+        }
+
+        /* Styl dla nagłówków kategorii (Pakiety, Klucze itp.) */
+        .category-section-title {
+            background-color: #f700ff; /* Różowy kolor */
+            color: #fff;
+            border: 2px solid #000;
+            padding: 10px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            text-align: center;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            white-space: nowrap;
+            margin: 40px auto 20px auto; /* Odstęp od góry, dołu, wyśrodkowanie */
+            display: inline-block; /* Aby button nie zajmował całej szerokości */
+        }
+
+        /* Style dla przycisków RANGI i PRODUKTY */
+        .mode-options-container {
+            text-align: center;
+            margin-top: 50px; /* Odstęp od nagłówka "SKLEP TRYBU LIGHTSMP" */
+            margin-bottom: 80px; /* Odstęp od stopki */
+        }
+
+        .mode-options-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Odstęp między przyciskami */
+            flex-wrap: wrap; /* Pozwala na zawijanie przycisków na mniejszych ekranach */
+        }
+
+        .option-button {
+            border: 2px solid #000;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            white-space: nowrap;
+            min-width: 150px; /* Minimalna szerokość przycisku */
+            display: inline-block;
+        }
+
+        .option-button.yellow {
+            background-color: #ffcc00;
+            color: #000;
+            border-color: #ffcc00;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5), 0 0 0 2px #ffcc00;
+        }
+
+        .option-button.grey {
+            background-color: #e0e0e0;
+            color: #000;
+            border-color: #e0e0e0;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5), 0 0 0 2px #e0e0e0;
+        }
+
+        .option-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Sekcja główna produktów - flex container */
+        .main-products-section {
+            display: flex;
+            justify-content: center;
+            gap: 40px; /* Odstęp między kolumną kategorii a produktami */
+            margin-top: 50px;
+            margin-bottom: 80px;
+            padding: 0 20px;
+            align-items: flex-start; /* Ważne, aby sticky działało poprawnie */
+        }
+
+        /* Kontener dla przycisków kategorii */
+        .category-buttons-container {
+            flex-shrink: 0; /* Zapobiega zmniejszaniu się kolumny */
+            width: 200px; /* Stała szerokość kolumny kategorii */
+            position: sticky; /* Sticky positioning */
+            top: 20px; /* Odstęp od góry strony, gdy jest sticky */
+            align-self: flex-start; /* Upewnia się, że sticky jest w odpowiednim miejscu */
+            z-index: 10; /* Aby było nad innymi elementami podczas przewijania */
+        }
+
+        .category-buttons-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .category-buttons-container h3 {
+            font-size: 12px;
+            color: #000;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            text-align: left;
+            width: 100%;
+        }
+
+        .category-button {
+            background-color: #ffcc00; /* Żółty kolor */
+            color: #000;
+            border: 2px solid #000;
+            padding: 10px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            white-space: nowrap;
+            width: 100%; /* Wypełnia dostępną szerokość w kolumnie */
+            display: block; /* Upewnij się, że są blokami */
+            box-sizing: border-box; /* Aby padding i border nie zwiększały szerokości */
+        }
+
+        .category-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Kontener dla wszystkich sekcji produktów (pakietów, kluczy itp.) */
+        .all-product-categories {
+            flex-grow: 1; /* Pozwala na zajęcie reszty przestrzeni */
+            display: flex;
+            flex-direction: column;
+            gap: 60px; /* Odstęp między sekcjami kategorii (Pakiety, Klucze) */
+        }
+
+        .product-wrapper-with-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .product-cards-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px; /* Odstęp między kartami produktów */
+            justify-content: center; /* Centrowanie kart wewnątrz wrapper'a */
+            width: 100%; /* Ważne, aby karty zajmowały całą szerokość */
+        }
+
+        /* Zmiany tutaj, aby guziki były w tej samej linii */
+        .product-card {
+            background-color: #fff;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 20px;
+            max-width: 280px;
+            flex: 1 1 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Rozmieszczenie elementów w kolumnie */
+            align-items: center;
+            box-sizing: border-box;
+            /* Zwiększono min-height, aby pomieścić więcej zmiennej treści */
+            min-height: 400px; /* Dostosuj tę wartość, aby wyrównać guziki w różnych rozdzielczościach */
+        }
+
+        .product-card .product-image-container {
+            width: 100%;
+            height: 150px; /* Stała wysokość kontenera na obrazek */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            overflow: hidden; /* Dodano: ukrywa to, co wychodzi poza kontener */
+        }
+
+        .product-card .product-image {
+            width: 100%; /* Zmieniono: Obrazek zawsze wypełnia całą szerokość kontenera */
+            height: 100%; /* Zmieniono: Obrazek zawsze wypełnia całą wysokość kontenera */
+            object-fit: contain; /* Utrzymuje proporcje, ale może zostawić puste miejsca */
+            /* Jeśli chcesz, aby obrazek zawsze wypełniał kontener bez pustych miejsc, użyj "cover" i sprawdź, czy to dobrze wygląda: */
+            /* object-fit: cover; */
+        }
+
+        .product-card .product-title {
+            font-size: 16px;
+            color: #000;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            text-align: center;
+            /* Usunięto min-height i dodano flex-grow dla lepszej elastyczności */
+            flex-grow: 1; /* Pozwala tytułowi "rozpychać się" w pionie */
+            display: flex;
+            align-items: center; /* Wyśrodkuj tekst tytułu w pionie */
+            justify-content: center; /* Wyśrodkuj tekst tytułu w poziomie */
+            width: 100%;
+        }
+
+        .product-card .product-price-button {
+            background-color: #ffcc00;
+            color: #000;
+            border: 2px solid #000;
+            padding: 10px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            white-space: nowrap;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .product-card .product-price-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f4f4f4;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 80px;
+        }
+
+        .footer-logo img {
+            height: 60px;
+            margin-bottom: 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 1000px;
+            flex-wrap: wrap;
+            gap: 50px;
+            text-align: left;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .footer-column h3 {
+            font-size: 14px;
+            color: #000;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .footer-column a {
+            color: #666;
+            text-decoration: none;
+            font-size: 10px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-column a:hover {
+            color: #000;
+        }
+
+        .footer-social-media {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-social-media h3 {
+            text-align: center;
+        }
+        
+        .footer-social-media ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+
+        .footer-social-media ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer-social-media ul li a {
+            font-size: 10px;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-social-media ul li a:hover {
+            color: #000;
+        }
+
+        .footer-buttons-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 20px;
+        }
+        
+        .footer-discord-button {
+            background-color: #3366ff;
+            color: #fff;
+            border: 2px solid #000;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            flex: 1;
+            text-align: center;
+        }
+
+        .footer-discord-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-text-normal {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .footer-column {
+                align-items: center;
+                text-align: center;
+            }
+            .footer-social-media ul {
+                text-align: center;
+            }
+            .footer-buttons-container {
+                flex-direction: column;
+            }
+            .section-with-lines {
+                margin: 30px 10px;
+            }
+            .section-title-button {
+                margin: 0 10px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+            .mode-options-wrapper {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            .option-button {
+                width: 80%;
+            }
+            /* Nowe media queries dla produktów */
+            .main-products-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            .category-buttons-container {
+                position: static; /* Wyłącz sticky na małych ekranach */
+                width: 80%;
+                text-align: center;
+            }
+            .category-buttons-container h3 {
+                text-align: center;
+            }
+            .category-buttons-inner {
+                    align-items: stretch; /* Zmienione, aby przyciski kategorii były równe na małych ekranach */
+            }
+            .category-button { /* Upewnij się, że ten styl jest zastosowany dla równej szerokości przycisków kategorii */
+                width: 100%;
+            }
+            .all-product-categories {
+                width: 100%;
+                align-items: center;
+            }
+            .product-card {
+                max-width: 90%; /* Daj więcej miejsca na małych ekranach */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-link">STRONA GŁÓWNA</a>
+    <a href="regulamin.html" class="nav-link">REGULAMIN</a>
+    <div class="logo" id="logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="Anarchia Logo">
+    </div>
+    <a href="sklep.html" class="nav-link">SKLEP SERWEROWY</a>
+    <a href="info.html" class="nav-link">WAŻNE INFORMACJE</a>
+</nav>
+
+<div class="section-with-lines">
+    <div class="line"></div>
+    <div class="section-title-button">SKLEP TRYBU LIGHTSMP</div>
+    <div class="line"></div>
+</div>
+
+<div class="mode-options-container">
+    <div class="mode-options-wrapper">
+        <a href="lightsmp.html" class="option-button grey">RANGI</a>
+        <a href="lightsmpprodukty.html" class="option-button yellow">PRODUKTY</a>
+    </div>
+</div>
+
+<div class="main-products-section">
+    <div class="category-buttons-container">
+        <div class="category-buttons-inner">
+            <h3>CO CIĘ INTERESUJE?</h3>
+            <a href="#pakiety-section" class="category-button">PAKIETY</a>
+            <a href="#klucze-section" class="category-button">KLUCZE</a>
+            <a href="#pozostale-section" class="category-button">POZOSTAŁE</a>
+        </div>
+    </div>
+
+    <div class="all-product-categories">
+        <div class="product-wrapper-with-title" id="pakiety-section">
+            <div class="section-with-lines">
+                <div class="line"></div>
+                <div class="category-section-title">PAKIETY</div>
+                <div class="line"></div>
+            </div>
+            <div class="product-cards-wrapper">
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <img src="https://i.imgur.com/6vubnEo.png" alt="PAKIET GVIP" class="product-image">
+                    </div>
+                    <h3 class="product-title">PAKIET GVIP</h3>
+                    <a href="https://vishop.pl/shop/22178/server/20917" class="product-price-button">KUP ZA 69.99 ZŁ</a>
+                </div>
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <img src="https://i.imgur.com/rVqoGi9.png" alt="PAKIET BOGACZA" class="product-image">
+                    </div>
+                    <h3 class="product-title">PAKIET BOGACZA</h3>
+                    <a href="https://vishop.pl/shop/22178/server/20917" class="product-price-button">KUP ZA 199.99 ZŁ</a>
+                </div>
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <img src="https://i.imgur.com/nzOEfCt.png" alt="OGROMNY PAKIET KLUCZY" class="product-image">
+                    </div>
+                    <h3 class="product-title">OGROMNY PAKIET KLUCZY</h3>
+                    <a href="https://vishop.pl/shop/22178/server/20917" class="product-price-button">KUP ZA 99.99 ZŁ</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-wrapper-with-title" id="klucze-section">
+            <div class="section-with-lines">
+                <div class="line"></div>
+                <div class="category-section-title">KLUCZE</div>
+                <div class="line"></div>
+            </div>
+            <div class="product-cards-wrapper">
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <img src="https://i.imgur.com/ALluV4K.png" alt="KLUCZ EPICKI" class="product-image">
+                    </div>
+                    <h3 class="product-title">KLUCZ EPICKI</h3>
+                    <a href="https://vishop.pl/shop/22178/server/20917" class="product-price-button">KUP ZA 10.00 ZŁ</a>
+                </div>
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <img src="https://i.imgur.com/3Nirx43.png" alt="KLUCZ LEGENDARNY" class="product-image">
+                    </div>
+                    <h3 class="product-title">KLUCZ LEGENDARNY</h3>
+                    <a href="https://vishop.pl/shop/22178/server/20917" class="product-price-button">KUP ZA 25.00 ZŁ</a>
+                </div>
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <img src="https://i.imgur.com/uPWdyxi.png" alt="KLUCZ RZADKI" class="product-image">
+                    </div>
+                    <h3 class="product-title">KLUCZ RZADKI</h3>
+                    <a href="https://vishop.pl/shop/22178/server/20917" class="product-price-button">KUP ZA 40.00 ZŁ</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-wrapper-with-title" id="pozostale-section">
+            <div class="section-with-lines">
+                <div class="line"></div>
+                <div class="category-section-title">POZOSTAŁE</div>
+                <div class="line"></div>
+            </div>
+            <div class="product-cards-wrapper">
+                </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="LightMC Logo">
+    </div>
+
+    <div class="footer-content">
+        <div class="footer-column footer-social-media">
+            <h3>SOCIAL MEDIA</h3>
+            <ul>
+                <li><a href="https://www.youtube.com/yourchannel" target="_blank">YOUTUBE</a></li>
+                <li><a href="https://dc.gg/lightmc.pl" target="_blank">DISCORD</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-buttons-container">
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+    </div>
+
+    <div class="footer-text-normal">
+        COPYRIGHT 2025 LIGHTMC.PL. WSZELKIE PRAWA ZASTRZEŻONE<br>
+        WYKONANIE SPACEHOUSE<br><br>
+        PL - Serwer LightMC.pl nie jest w żaden sposób powiązany z firmą Mojang lub Microsoft.<br>
+        EN - LightMC.pl server is not associated with Mojang or Microsoft in any way.
+    </div>
+</footer>
+
+<script>
+    const links = document.querySelectorAll('.nav-link');
+
+    links.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+
+            // Dodaj klasę "clicked" na kliknięty element
+            link.classList.add('clicked');
+
+            // Po 200ms wróć do koloru czarnego i przejdź do strony
+            setTimeout(() => {
+                link.classList.remove('clicked');
+                window.location.href = link.getAttribute('href');
+            }, 200);
+        });
+    });
+
+    // Efekt animacji na logo dopóki myszka jest nad logo
+    const logo = document.getElementById('logo');
+
+    logo.addEventListener('mouseenter', () => {
+        logo.classList.add('animate');
+    });
+
+    logo.addEventListener('mouseleave', () => {
+        logo.classList.remove('animate');
+    });
+
+    // Płynne przewijanie do sekcji
+    document.querySelectorAll('.category-button').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            // Offset, aby sticky header nie zasłaniał sekcji
+            const offset = 100; // Dostosuj tę wartość, jeśli nagłówek jest większy/mniejszy
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+                const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                const offsetPosition = elementPosition - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

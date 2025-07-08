@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>LightMC.light-host.pl - Strona Główna</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: #f4f4f4;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            background-color: rgba(255, 255, 255, 0);
+            gap: 40px;
+        }
+
+        nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+
+        nav a.clicked {
+            color: #0055ff;
+        }
+
+        .logo {
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 70px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Animacja "folowania" */
+        @keyframes logo-wave {
+            0% {
+                transform: skewX(0deg);
+            }
+            25% {
+                transform: skewX(-10deg);
+            }
+            50% {
+                transform: skewX(10deg);
+            }
+            75% {
+                transform: skewX(-10deg);
+            }
+            100% {
+                transform: skewX(0deg);
+            }
+        }
+
+        /* Klasa do animacji - powtarzana w nieskończoność */
+        .logo.animate img {
+            animation: logo-wave 1.5s linear infinite;
+        }
+
+        /* Styles for the main content from the screenshot */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            margin-top: 100px; /* Approximately 100px below the nav */
+            padding: 20px;
+            box-sizing: border-box;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .left-panel {
+            background-color: #ffdd00; /* Yellow background */
+            padding: 30px;
+            border: 2px solid #000;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.5); /* Pixelated shadow */
+            flex: 2;
+            min-width: 300px; /* Minimum width for the left panel */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative; /* For absolute positioning of media icons if needed */
+        }
+
+        .left-panel h1 {
+            color: #000;
+            font-size: 20px;
+            margin: 0;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+        }
+
+        .left-panel p {
+            color: #000;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .copy-ip-button {
+            background-color: #000;
+            color: #fff;
+            border: 2px solid #000;
+            padding: 10px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            text-transform: uppercase;
+            width: fit-content; /* Adjust button width to content */
+        }
+
+        .copy-ip-button:hover:not(:disabled) { /* Apply hover only when not disabled */
+            background-color: #333;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .copy-ip-button:disabled { /* Style for disabled state */
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        .our-media {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Align to the right side of the yellow box */
+            position: absolute; /* Position relative to .left-panel */
+            bottom: 30px; /* Adjust as needed */
+            right: 30px; /* Adjust as needed */
+            gap: 10px;
+        }
+
+        .our-media h2 {
+            font-size: 10px;
+            color: #000;
+            margin-bottom: 5px;
+            text-align: right;
+        }
+
+        .media-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .media-icon {
+            display: inline-block; /* Make the link behave like a block for sizing */
+            width: 30px; /* Fixed width for the clickable area */
+            height: 30px; /* Fixed height for the clickable area */
+            cursor: pointer;
+        }
+
+        .media-icon img {
+            width: 100%; /* Make image fill the anchor */
+            height: 100%; /* Make image fill the anchor */
+            display: block; /* Remove extra space below image */
+            object-fit: contain; /* Ensure the entire image is visible */
+            border: 2px solid #000; /* Add border to the image */
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5); /* Add shadow to the image */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transition for hover */
+        }
+
+        .media-icon img:hover {
+            transform: scale(1.15); /* Enlarge by 15% on hover */
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5); /* Slightly larger shadow on hover */
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+            min-width: 200px; /* Minimum width for the right panel */
+        }
+
+        .minecraft-button {
+            border: 2px solid #000;
+            padding: 15px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+        }
+
+        .minecraft-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-purple {
+            background-color: #9933cc; /* Purple */
+        }
+
+        .btn-green {
+            background-color: #33cc33; /* Green */
+        }
+
+        .btn-blue {
+            background-color: #3366ff; /* Blue */
+        }
+
+        /* Section Divider Styles */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin: 50px 0; /* Space above and below the section */
+            padding: 0 20px; /* Padding for the lines to not touch edges */
+            box-sizing: border-box;
+        }
+
+        .section-divider-line {
+            flex-grow: 1; /* Makes the line take up available space */
+            height: 2px;
+            background-color: #ccc; /* Light grey line */
+        }
+
+        .section-divider-box {
+            color: #fff;
+            font-size: 14px;
+            padding: 15px 30px;
+            border: 2px solid #000;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            margin: 0 20px; /* Space between lines and box */
+            white-space: nowrap; /* Prevent text from wrapping */
+        }
+
+        /* Specific color for ADMINISTRACJA box */
+        .section-divider-box.admin-color {
+            background-color: #8B0000; /* Dark Cherry Red */
+        }
+
+        /* Specific color for NASZE TRYBY box */
+        .section-divider-box.modes-color {
+            background-color: #0066CC; /* Blue */
+        }
+        
+        /* Specific color for WYRÓŻNIONE PRODUKTY box */
+        /* .section-divider-box.products-color {
+            background-color: #FF69B4; /* Hot Pink */
+        /* } */
+
+
+        /* Administration and Tryby Cards Container Styles */
+        .cards-container { /* Renamed for general use */
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            flex-wrap: wrap; /* Allow cards to wrap on smaller screens */
+            margin-bottom: 50px; /* Space below the section */
+        }
+
+        .general-card { /* New class for common card styles */
+            background-color: #fff; /* White background for the card */
+            border: 2px solid #000;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.5); /* Shadow similar to main panel */
+            width: 250px; /* Fixed width for each card */
+            padding-bottom: 20px; /* Padding at the bottom for text */
+            text-align: center;
+            position: relative;
+            overflow: hidden; /* Ensure content stays within borders */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Added transition for hover effect */
+        }
+
+        .general-card:hover { /* Hover effect for the entire card */
+            transform: scale(1.02); /* Enlarge by 2% (approx 5px depending on size) */
+            box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.6); /* Slightly larger shadow on hover */
+        }
+
+        .card-banner { /* Generic banner style */
+            color: #fff;
+            font-size: 10px;
+            padding: 8px 0;
+            margin-bottom: 15px; /* Space between banner and image */
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.2); /* Small shadow for banner */
+        }
+
+        /* Specific banner color for admin cards */
+        .admin-card .card-banner {
+             background-color: #ff3366; /* Red/Pink banner color for admin */
+        }
+
+        /* Specific banner color for tryb card */
+        .mode-card .card-banner {
+             background-color: #009933; /* A green color for tryb banner, you can adjust this */
+        }
+
+        /* Specific banner color for product cards */
+        /* .product-card .card-banner {
+            background-color: #FF3366; /* Red/Pink banner for products */
+        /* } */
+
+
+        .card-image-placeholder { /* Generic placeholder for skin/logo */
+            width: 150px; /* Size of the image area */
+            height: 150px;
+            margin: 0 auto 15px auto; /* Center and space below */
+            background-size: cover; /* Cover the area */
+            background-position: center; /* Center the image */
+            background-repeat: no-repeat;
+            border: 2px solid #000; /* Border around the image area */
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3); /* Shadow for image area */
+        }
+
+        /* Ensure images inside product cards also use contain if needed */
+        /* .product-card .card-image-placeholder {
+            background-size: contain;
+        } */
+
+
+        .card-title { /* Generic for nickname/mode name */
+            font-size: 16px;
+            color: #000;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-role { /* Generic for role/description */
+            font-size: 12px;
+            color: #666; /* Lighter color for role */
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f4f4f4; /* Same as body background */
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 2px solid #ddd; /* Light line at the top */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 80px; /* Space from the content above */
+        }
+
+        .footer-logo img {
+            height: 60px; /* Slightly smaller logo in footer */
+            margin-bottom: 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center; /* Center main footer columns */
+            width: 100%;
+            max-width: 1000px; /* Max width for content alignment */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 50px; /* Gap between columns */
+            text-align: left; /* Default text alignment for columns */
+        }
+
+        .footer-column {
+            flex: 1; /* Distribute space evenly */
+            min-width: 200px; /* Minimum width for columns before wrapping */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center; /* Center items within columns */
+        }
+
+        .footer-column h3 {
+            font-size: 14px;
+            color: #000;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .footer-column a {
+            color: #666;
+            text-decoration: none;
+            font-size: 10px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-column a:hover {
+            color: #000;
+        }
+
+        .footer-social-media {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align social media list */
+            gap: 10px;
+        }
+
+        .footer-social-media h3 {
+            text-align: center;
+        }
+        
+        .footer-social-media ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: center; /* Center list items */
+        }
+
+        .footer-social-media ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer-social-media ul li a {
+            font-size: 10px;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-social-media ul li a:hover {
+            color: #000;
+        }
+
+        .footer-buttons-container {
+            display: flex;
+            gap: 20px; /* Space between buttons */
+            justify-content: center; /* Center the buttons */
+            width: 100%;
+            max-width: 400px; /* Limit width of button container */
+            margin-top: 20px;
+        }
+        
+        .footer-discord-button {
+            background-color: #3366ff; /* Blue color */
+            color: #fff;
+            border: 2px solid #000;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Allow padding and sizing */
+            flex: 1; /* Take up equal space */
+            text-align: center;
+        }
+
+        .footer-discord-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-text-normal { /* New style for normal font text */
+            font-family: Arial, sans-serif; /* Or any other sans-serif font you prefer for normal text */
+            font-size: 12px; /* Adjust as needed */
+            color: #666; /* Adjust color as needed */
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 20px; /* Space from buttons */
+        }
+
+
+        .footer-copyright {
+            margin-top: 40px; /* Adjust as needed */
+            font-size: 8px; /* Original size */
+            color: #666; /* Original color */
+            text-align: center; /* Original alignment */
+            line-height: 1.5; /* Original line-height */
+        }
+
+        .footer-disclaimer {
+            font-size: 8px; /* Original size */
+            color: #888; /* Original color */
+            margin-top: 10px; /* Original margin */
+            text-align: center; /* Original alignment */
+            line-height: 1.5; /* Original line-height */
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .logo {
+                margin: 10px 0;
+            }
+
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+                margin-top: 50px; /* Adjust margin for smaller screens */
+            }
+
+            .left-panel, .right-panel {
+                width: 90%;
+                min-width: unset;
+            }
+
+            .our-media {
+                position: static; /* Remove absolute positioning on small screens */
+                align-items: center; /* Center align media section on small screens */
+                margin-top: 20px;
+            }
+
+            .section-divider-box {
+                font-size: 12px; /* Smaller font on small screens */
+                padding: 10px 20px;
+            }
+
+            .general-card { /* Apply to general card class */
+                width: 90%; /* Make cards take more width on small screens */
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .footer-column {
+                align-items: center;
+                text-align: center;
+            }
+            
+            .footer-social-media ul {
+                text-align: center; /* Center social media links on small screens */
+            }
+            
+            .footer-buttons-container {
+                flex-direction: column; /* Stack buttons on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-link">STRONA GŁÓWNA</a>
+    <a href="regulamin.html" class="nav-link">REGULAMIN</a>
+    <div class="logo" id="logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="Anarchia Logo">
+    </div>
+    <a href="sklep.html" class="nav-link">SKLEP SERWEROWY</a>
+    <a href="info.html" class="nav-link">WAŻNE INFORMACJE</a>
+</nav>
+
+<div class="main-content">
+    <div class="left-panel">
+        <h1>LightMC.light-host.pl</h1>
+        <p>WSZYSTKIE NOWOŚCI I AKTUALNOŚCI ZNAJDZIESZ NA NASZYM DISCORDZIE!</p>
+        <button class="copy-ip-button">KOPIUJ IP</button>
+
+        <div class="our-media">
+            <h2>NASZE MEDIA</h2>
+            <div class="media-icons">
+                <a href="https://dc.gg/lightmc.pl" target="_blank" class="media-icon">
+                    <img src="https://i.imgur.com/IaLe7VG.png" alt="Discord">
+                </a>
+                <a href="https://www.youtube.com/yourchannel" target="_blank" class="media-icon"> <img src="https://i.imgur.com/Vpy2c44.png" alt="YouTube">
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="right-panel">
+        <a href="regulamin.html" class="minecraft-button btn-purple">REGULAMIN</a>
+        <a href="sklep.html" class="minecraft-button btn-green">ZOBACZ SKLEP</a>
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="minecraft-button btn-blue">NASZ DISCORD</a>
+    </div>
+</div>
+
+<div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-box admin-color">ADMINISTRACJA</div>
+    <div class="section-divider-line"></div>
+</div>
+
+<div class="cards-container"> <div class="general-card admin-card"> <div class="card-banner">ADMINISTRATOR</div>
+        <div class="card-image-placeholder" style="background-image: url('https://cravatar.eu/helmavatar/KosteK_PL_/128.png');"></div>
+        <div class="card-title">KosteK_PL__</div>
+        <div class="card-role">OWNER</div>
+    </div>
+
+    <div class="general-card admin-card"> <div class="card-banner">ADMINISTRATOR</div>
+        <div class="card-image-placeholder" style="background-image: url('https://cravatar.eu/helmavatar/Stworek56/128.png');"></div>
+        <div class="card-title">Stworek56</div>
+        <div class="card-role">OWNER</div>
+    </div>
+</div>
+
+<div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-box modes-color">NASZE TRYBY</div>
+    <div class="section-divider-line"></div>
+</div>
+
+<div class="cards-container"> <div class="general-card mode-card"> <div class="card-banner">TRYB</div>
+        <div class="card-image-placeholder" style="background-image: url('https://i.imgur.com/OE415Op.png'); background-size: contain;"></div>
+        <div class="card-title">LightSMP</div>
+        </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="LightMC Logo">
+    </div>
+
+    <div class="footer-content">
+        <div class="footer-column footer-social-media">
+            <h3>SOCIAL MEDIA</h3>
+            <ul>
+                <li><a href="https://www.youtube.com/yourchannel" target="_blank">YOUTUBE</a></li> <li><a href="https://dc.gg/lightmc.pl" target="_blank">DISCORD</a></li> </ul>
+        </div>
+    </div>
+
+    <div class="footer-buttons-container">
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+    </div>
+
+    <div class="footer-text-normal">
+        COPYRIGHT 2025 LIGHTMC.PL. WSZELKIE PRAWA ZASTRZEŻONE<br>
+        WYKONANIE SPACEHOUSE<br><br>
+        PL - Serwer LightMC.pl nie jest w żaden sposób powiązany z firmą Mojang lub Microsoft.<br>
+        EN - LightMC.pl server is not associated with Mojang or Microsoft in any way.
+    </div>
+</footer>
+
+<script>
+    const links = document.querySelectorAll('.nav-link');
+
+    links.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+
+            // Add "clicked" class to the clicked element
+            link.classList.add('clicked');
+
+            // After 200ms, revert to black color and navigate to the page
+            setTimeout(() => {
+                link.classList.remove('clicked');
+                window.location.href = link.getAttribute('href');
+            }, 200);
+        });
+    });
+
+    // Logo animation effect while mouse is over the logo
+    const logo = document.getElementById('logo');
+
+    logo.addEventListener('mouseenter', () => {
+        logo.classList.add('animate');
+    });
+
+    logo.addEventListener('mouseleave', () => {
+        logo.classList.remove('animate');
+    });
+
+    // Copy IP button functionality
+    const copyIpButton = document.querySelector('.copy-ip-button');
+    const originalButtonText = copyIpButton.innerText; // Store original text
+
+    copyIpButton.addEventListener('click', () => {
+        const ipToCopy = "LightMC.light-host.pl"; // Replace with your actual server IP
+
+        // Use Clipboard API for copying
+        navigator.clipboard.writeText(ipToCopy).then(() => {
+            // Success: Change button text and disable
+            copyIpButton.innerText = "SKOPIOWANO!";
+            copyIpButton.disabled = true; // Disable to prevent repeated clicks
+
+            // Set a timeout to revert the button after 5 seconds
+            setTimeout(() => {
+                copyIpButton.innerText = originalButtonText; // Revert text
+                copyIpButton.disabled = false; // Re-enable button
+            }, 5000); // 5000 milliseconds = 5 seconds
+
+        }).catch(err => {
+            console.error('Nie udało się skopiować IP: ', err);
+            // Optionally, you can add a fallback or a small error message here if copying fails
+            alert("Błąd podczas kopiowania IP.");
+        });
+    });
+</script>
+
+</body>
+</html>

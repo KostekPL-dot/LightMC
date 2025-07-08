@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>LightMC.light-host.pl - Sklep Serwera</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: #f4f4f4;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            background-color: rgba(255, 255, 255, 0);
+            gap: 40px;
+        }
+
+        nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+
+        nav a.clicked {
+            color: #0055ff;
+        }
+
+        .logo {
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 70px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Animacja "falowania" */
+        @keyframes logo-wave {
+            0% { transform: skewX(0deg); }
+            25% { transform: skewX(-10deg); }
+            50% { transform: skewX(10deg); }
+            75% { transform: skewX(-10deg); }
+            100% { transform: skewX(0deg); }
+        }
+
+        /* Klasa do animacji - powtarzana w nieskończoność */
+        .logo.animate img {
+            animation: logo-wave 1.5s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .logo {
+                margin: 10px 0;
+            }
+        }
+
+        /* Styl dla sekcji z liniami i tekstem pośrodku */
+        .section-with-lines {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 50px 20px; /* Odstęp od góry i dołu, oraz boki */
+            position: relative; /* Dla z-index na przycisku */
+        }
+
+        .line {
+            flex-grow: 1; /* Linia rozciąga się, aby wypełnić dostępną przestrzeń */
+            height: 2px;
+            background-color: #ddd; /* Szary kolor linii */
+        }
+
+        .section-title-button {
+            background-color: #ff00cc; /* Różowy kolor dla "WYBIERZ TRYB" */
+            color: #fff;
+            border: 2px solid #000;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            white-space: nowrap; /* Zapobiega zawijaniu tekstu */
+            margin: 0 20px; /* Odstęp od linii */
+            position: relative; /* Utrzymuje cień za przyciskiem */
+            z-index: 1; /* Upewnia się, że przycisk jest na wierzchu linii */
+        }
+
+        .mode-selection-container {
+            text-align: center;
+            margin-top: 50px; /* Odstęp od nagłówka */
+            margin-bottom: 80px; /* Odstęp od stopki */
+        }
+        
+        .mode-question {
+            font-size: 10px;
+            color: #222;
+            margin-bottom: 30px; /* Odstęp od przycisków trybów */
+            letter-spacing: 1px;
+            margin-top: 40px; /* Dodatkowy odstęp od linii */
+        }
+
+        .mode-buttons-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 30px; /* Odstęp między przyciskami */
+            flex-wrap: wrap; /* Pozwala na zawijanie przycisków na mniejszych ekranach */
+        }
+
+        .mode-button {
+            background-color: #ffcc00; /* Kolor żółty z obrazka */
+            color: #000;
+            border: 2px solid #000;
+            padding: 20px 40px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            white-space: nowrap; /* Zapobiega zawijaniu tekstu w przycisku */
+            min-width: 180px; /* Minimalna szerokość przycisku */
+            display: inline-block; /* Umożliwia padding i box-shadow */
+        }
+
+        .mode-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Footer Styles (przeniesione z index.html i regulamin.html) */
+        .footer {
+            background-color: #f4f4f4; /* Same as body background */
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 2px solid #ddd; /* Light line at the top */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 80px; /* Space from the content above */
+        }
+
+        .footer-logo img {
+            height: 60px; /* Slightly smaller logo in footer */
+            margin-bottom: 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center; /* Center main footer columns */
+            width: 100%;
+            max-width: 1000px; /* Max width for content alignment */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 50px; /* Gap between columns */
+            text-align: left; /* Default text alignment for columns */
+        }
+
+        .footer-column {
+            flex: 1; /* Distribute space evenly */
+            min-width: 200px; /* Minimum width for columns before wrapping */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center; /* Center items within columns */
+        }
+
+        .footer-column h3 {
+            font-size: 14px;
+            color: #000;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .footer-column a {
+            color: #666;
+            text-decoration: none;
+            font-size: 10px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-column a:hover {
+            color: #000;
+        }
+
+        .footer-social-media {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align social media list */
+            gap: 10px;
+        }
+
+        .footer-social-media h3 {
+            text-align: center;
+        }
+        
+        .footer-social-media ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: center; /* Center list items */
+        }
+
+        .footer-social-media ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer-social-media ul li a {
+            font-size: 10px;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-social-media ul li a:hover {
+            color: #000;
+        }
+
+        .footer-buttons-container {
+            display: flex;
+            gap: 20px; /* Space between buttons */
+            justify-content: center; /* Center the buttons */
+            width: 100%;
+            max-width: 400px; /* Limit width of button container */
+            margin-top: 20px;
+        }
+        
+        .footer-discord-button {
+            background-color: #3366ff; /* Blue color */
+            color: #fff;
+            border: 2px solid #000;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Allow padding and sizing */
+            flex: 1; /* Take up equal space */
+            text-align: center;
+        }
+
+        .footer-discord-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-text-normal { /* New style for normal font text */
+            font-family: Arial, sans-serif; /* Or any other sans-serif font you prefer for normal text */
+            font-size: 12px; /* Adjust as needed */
+            color: #666; /* Adjust color as needed */
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 20px; /* Space from buttons */
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .footer-column {
+                align-items: center;
+                text-align: center;
+            }
+            .footer-social-media ul {
+                text-align: center; /* Center social media links on small screens */
+            }
+            .footer-buttons-container {
+                flex-direction: column; /* Stack buttons on small screens */
+            }
+            .mode-buttons-wrapper {
+                flex-direction: column; /* Ułóż przyciski trybów pionowo na małych ekranach */
+                align-items: center;
+                gap: 20px;
+            }
+            .section-with-lines {
+                margin: 30px 10px; /* Zmniejsz marginesy na małych ekranach */
+            }
+            .section-title-button {
+                margin: 0 10px; /* Zmniejsz odstęp od linii na małych ekranach */
+                padding: 10px 20px; /* Zmniejsz padding przycisku */
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-link">STRONA GŁÓWNA</a>
+    <a href="regulamin.html" class="nav-link">REGULAMIN</a>
+    <div class="logo" id="logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="Anarchia Logo">
+    </div>
+    <a href="sklep.html" class="nav-link">SKLEP SERWEROWY</a>
+    <a href="info.html" class="nav-link">WAŻNE INFORMACJE</a>
+</nav>
+
+<div class="section-with-lines">
+    <div class="line"></div>
+    <div class="section-title-button">WYBIERZ TRYB</div>
+    <div class="line"></div>
+</div>
+
+<div class="mode-selection-container">
+    <p class="mode-question">NA JAKIM TRYBIE CHCESZ KUPIC USŁUGĘ?</p>
+    <div class="mode-buttons-wrapper">
+        <a href="lightsmp.html" class="mode-button">LIGHTSMP</a>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="LightMC Logo">
+    </div>
+
+    <div class="footer-content">
+        <div class="footer-column footer-social-media">
+            <h3>SOCIAL MEDIA</h3>
+            <ul>
+                <li><a href="https://www.youtube.com/yourchannel" target="_blank">YOUTUBE</a></li>
+                <li><a href="https://dc.gg/lightmc.pl" target="_blank">DISCORD</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-buttons-container">
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+    </div>
+
+    <div class="footer-text-normal">
+        COPYRIGHT 2025 LIGHTMC.PL. WSZELKIE PRAWA ZASTRZEŻONE<br>
+        WYKONANIE SPACEHOUSE<br><br>
+        PL - Serwer LightMC.pl nie jest w żaden sposób powiązany z firmą Mojang lub Microsoft.<br>
+        EN - LightMC.pl server is not associated with Mojang or Microsoft in any way.
+    </div>
+</footer>
+
+<script>
+    const links = document.querySelectorAll('.nav-link');
+
+    links.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+
+            // Dodaj klasę "clicked" na kliknięty element
+            link.classList.add('clicked');
+
+            // Po 200ms wróć do koloru czarnego i przejdź do strony
+            setTimeout(() => {
+                link.classList.remove('clicked');
+                window.location.href = link.getAttribute('href');
+            }, 200);
+        });
+    });
+
+    // Efekt animacji na logo dopóki myszka jest nad logo
+    const logo = document.getElementById('logo');
+
+    logo.addEventListener('mouseenter', () => {
+        logo.classList.add('animate');
+    });
+
+    logo.addEventListener('mouseleave', () => {
+        logo.classList.remove('animate');
+    });
+</script>
+
+</body>
+</html>

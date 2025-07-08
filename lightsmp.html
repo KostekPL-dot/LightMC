@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>LightMC.light-host.pl - Sklep LightSMP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: #f4f4f4;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            background-color: rgba(255, 255, 255, 0);
+            gap: 40px;
+        }
+
+        nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+
+        nav a.clicked {
+            color: #0055ff;
+        }
+
+        .logo {
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 70px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Animacja "falowania" */
+        @keyframes logo-wave {
+            0% { transform: skewX(0deg); }
+            25% { transform: skewX(-10deg); }
+            50% { transform: skewX(10deg); }
+            75% { transform: skewX(-10deg); }
+            100% { transform: skewX(0deg); }
+        }
+
+        /* Klasa do animacji - powtarzana w nieskończoność */
+        .logo.animate img {
+            animation: logo-wave 1.5s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .logo {
+                margin: 10px 0;
+            }
+        }
+
+        /* Styl dla sekcji z liniami i tekstem pośrodku */
+        .section-with-lines {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 50px 20px; /* Odstęp od góry i dołu, oraz boki */
+            position: relative; /* Dla z-index na przycisku */
+        }
+
+        .line {
+            flex-grow: 1; /* Linia rozciąga się, aby wypełnić dostępną przestrzeń */
+            height: 2px;
+            background-color: #ddd; /* Szary kolor linii */
+        }
+
+        .section-title-button {
+            background-color: #f700ff; /* Różowy kolor dla "SKLEP TRYBU LIGHTSMP" */
+            color: #fff;
+            border: 2px solid #000;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            white-space: nowrap; /* Zapobiega zawijaniu tekstu */
+            margin: 0 20px; /* Odstęp od linii */
+            position: relative; /* Utrzymuje cień za przyciskiem */
+            z-index: 1; /* Upewnia się, że przycisk jest na wierzchu linii */
+        }
+
+        /* Style dla przycisków RANGI i PRODUKTY */
+        .mode-options-container {
+            text-align: center;
+            margin-top: 50px; /* Odstęp od nagłówka "SKLEP TRYBU LIGHTSMP" */
+            margin-bottom: 80px; /* Odstęp od stopki */
+        }
+
+        .mode-options-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Odstęp między przyciskami */
+            flex-wrap: wrap; /* Pozwala na zawijanie przycisków na mniejszych ekranach */
+        }
+
+        .option-button {
+            border: 2px solid #000;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            white-space: nowrap;
+            min-width: 150px; /* Minimalna szerokość przycisku */
+            display: inline-block;
+        }
+
+        .option-button.yellow {
+            background-color: #ffcc00;
+            color: #000;
+            border-color: #ffcc00;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5), 0 0 0 2px #ffcc00;
+        }
+
+        .option-button.grey {
+            background-color: #e0e0e0;
+            color: #000;
+            border-color: #e0e0e0;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5), 0 0 0 2px #e0e0e0;
+        }
+
+        .option-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Style dla sekcji z przyciskami VIP/SVIP/GVIP i ich nagłówkami */
+        .rank-purchase-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px; /* Odstęp między grupami przycisków */
+            margin-top: 80px; /* Odstęp od poprzedniej sekcji */
+            margin-bottom: 80px; /* Odstęp od stopki */
+            flex-wrap: wrap; /* Pozwala na zawijanie na mniejszych ekranach */
+        }
+
+        .rank-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Odstępy są już zarządzane przez gap w .rank-purchase-container */
+        }
+
+        .rank-card .rank-title {
+            font-size: 20px; /* Większy rozmiar czcionki dla VIP, SVIP, GVIP */
+            font-weight: bold;
+            margin-bottom: 15px; /* Odstęp między tytułem a przyciskiem */
+            letter-spacing: 2px;
+            color: #000; /* Domyślny kolor tekstu */
+            text-transform: uppercase;
+        }
+
+        .rank-card .rank-title.vip {
+            color: #ffcc00; /* Żółty tekst dla VIP */
+        }
+
+        .rank-card .rank-title.svip {
+            color: #ff5500; /* Pomarańczowy tekst dla SVIP */
+        }
+
+        .rank-card .rank-title.gvip {
+            color: #00aaff; /* Jasnoniebieski tekst dla GVIP */
+        }
+
+        .rank-purchase-button {
+            border: 2px solid #000;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            white-space: nowrap;
+            min-width: 200px; /* Minimalna szerokość przycisku */
+            display: inline-block;
+        }
+
+        .rank-purchase-button.vip {
+            background-color: #ffcc00; /* Żółty */
+            color: #000;
+            border-color: #ffcc00; /* Ramka w kolorze tła */
+            box-shadow: 6px 6px 0px #f0e68c, 0 0 0 2px #ffcc00; /* Żółty cień i żółta ramka zewnętrzna */
+        }
+
+        .rank-purchase-button.svip {
+            background-color: #ff5500; /* Pomarańczowy */
+            color: #000;
+            border-color: #ff5500; /* Ramka w kolorze tła */
+            box-shadow: 6px 6px 0px #ffb380, 0 0 0 2px #ff5500; /* Jasnopomarańczowy cień i pomarańczowa ramka zewnętrzna */
+        }
+
+        .rank-purchase-button.gvip {
+            background-color: #00aaff; /* Jasnoniebieski */
+            color: #000;
+            border-color: #00aaff; /* Ramka w kolorze tła */
+            box-shadow: 6px 6px 0px #add8e6, 0 0 0 2px #00aaff; /* Jasnoniebieski cień i jasnoniebieska ramka zewnętrzna */
+        }
+
+        .rank-purchase-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5), 0 0 0 2px; /* Domyślny cień hover, dostosowany dla każdego przycisku niżej */
+        }
+        .rank-purchase-button.vip:hover {
+            box-shadow: 4px 4px 0px #f0e68c, 0 0 0 2px #ffcc00;
+        }
+        .rank-purchase-button.svip:hover {
+            box-shadow: 4px 4px 0px #ffb380, 0 0 0 2px #ff5500;
+        }
+        .rank-purchase-button.gvip:hover {
+            box-shadow: 4px 4px 0px #add8e6, 0 0 0 2px #00aaff;
+        }
+
+        /* Styles for the rank comparison table */
+        .rank-comparison-table-container {
+            width: 100%;
+            max-width: 900px; /* Adjust as needed */
+            margin: 80px auto; /* Centruj i dodaj odstępy od góry/dołu */
+            background-color: #fff;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto; /* Allow horizontal scrolling on small screens */
+            border-collapse: collapse; /* Ensure table borders collapse */
+        }
+
+        .rank-comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: center;
+            white-space: nowrap; /* Prevent text wrapping in cells */
+        }
+
+        .rank-comparison-table th,
+        .rank-comparison-table td {
+            padding: 15px 10px;
+            border: 1px solid #eee;
+            vertical-align: middle; /* Centruj w pionie */
+        }
+
+        .rank-comparison-table thead th {
+            background-color: #f9f9f9;
+            color: #000;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+            padding-bottom: 20px; /* Większy odstęp pod nagłówkami */
+        }
+
+        .rank-comparison-table tbody tr:nth-child(even) {
+            background-color: #fcfcfc; /* Jasne tło dla co drugiej linii */
+        }
+
+        /* Specific header colors for the table */
+        .rank-comparison-table thead th:nth-child(2) { /* VIP column */
+            color: #ffcc00; /* Żółty */
+        }
+
+        .rank-comparison-table thead th:nth-child(3) { /* SVIP column */
+            color: #ff5500; /* Pomarańczowy */
+        }
+
+        .rank-comparison-table thead th:nth-child(4) { /* GVIP column */
+            color: #00aaff; /* Jasnoniebieski */
+        }
+
+        .rank-comparison-table tbody th {
+            text-align: left;
+            color: #333;
+            font-weight: normal; /* Normalna waga czcionki dla nazw cech */
+            font-size: 10px; /* Mniejszy rozmiar dla nazw cech */
+            padding-left: 20px; /* Wcięcie dla nazw cech */
+            text-transform: uppercase;
+        }
+
+        .rank-comparison-table td {
+            color: #555;
+            font-size: 10px; /* Mniejszy rozmiar dla wartości */
+        }
+
+        /* Style for check and cross marks */
+        .check-mark {
+            color: #00cc00; /* Zielony kolor dla ✓ */
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .cross-mark {
+            color: #ff0000; /* Czerwony kolor dla X */
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+
+        /* Footer Styles */
+        .footer {
+            background-color: #f4f4f4;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 80px;
+        }
+
+        .footer-logo img {
+            height: 60px;
+            margin-bottom: 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 1000px;
+            flex-wrap: wrap;
+            gap: 50px;
+            text-align: left;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .footer-column h3 {
+            font-size: 14px;
+            color: #000;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .footer-column a {
+            color: #666;
+            text-decoration: none;
+            font-size: 10px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-column a:hover {
+            color: #000;
+        }
+
+        .footer-social-media {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-social-media h3 {
+            text-align: center;
+        }
+        
+        .footer-social-media ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+
+        .footer-social-media ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer-social-media ul li a {
+            font-size: 10px;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-social-media ul li a:hover {
+            color: #000;
+        }
+
+        .footer-buttons-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 20px;
+        }
+        
+        .footer-discord-button {
+            background-color: #3366ff;
+            color: #fff;
+            border: 2px solid #000;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            flex: 1;
+            text-align: center;
+        }
+
+        .footer-discord-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-text-normal {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .footer-column {
+                align-items: center;
+                text-align: center;
+            }
+            .footer-social-media ul {
+                text-align: center;
+            }
+            .footer-buttons-container {
+                flex-direction: column;
+            }
+            .section-with-lines {
+                margin: 30px 10px;
+            }
+            .section-title-button {
+                margin: 0 10px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+            .mode-options-wrapper {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            .option-button {
+                width: 80%;
+            }
+            .rank-purchase-container {
+                margin: 40px 10px;
+                flex-direction: column; /* Ułóż przyciski pionowo na małych ekranach */
+                align-items: center;
+                gap: 30px;
+            }
+            .rank-card .rank-title {
+                font-size: 16px; /* Zmniejsz rozmiar nagłówków rang na małych ekranach */
+            }
+            .rank-purchase-button {
+                width: 80%; /* Daj większą szerokość na małych ekranach */
+                font-size: 12px;
+                padding: 12px 20px;
+            }
+            .rank-comparison-table-container {
+                margin: 40px 10px; /* Mniejsze marginesy na małych ekranach */
+            }
+            .rank-comparison-table {
+                font-size: 10px; /* Zmniejsz czcionkę tabeli na małych ekranach */
+            }
+            .rank-comparison-table th,
+            .rank-comparison-table td {
+                padding: 10px 5px; /* Mniejsze paddingi */
+            }
+            .rank-comparison-table thead th {
+                font-size: 12px; /* Zmniejsz nagłówki tabeli */
+                padding-bottom: 10px;
+            }
+            .rank-comparison-table tbody th {
+                font-size: 8px; /* Jeszcze mniejszy rozmiar dla nazw cech */
+                padding-left: 10px;
+            }
+            .rank-comparison-table td {
+                font-size: 8px; /* Jeszcze mniejszy rozmiar dla wartości */
+            }
+            .check-mark, .cross-mark {
+                font-size: 12px; /* Zmniejsz ikony */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-link">STRONA GŁÓWNA</a>
+    <a href="regulamin.html" class="nav-link">REGULAMIN</a>
+    <div class="logo" id="logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="Anarchia Logo">
+    </div>
+    <a href="sklep.html" class="nav-link">SKLEP SERWEROWY</a>
+    <a href="info.html" class="nav-link">WAŻNE INFORMACJE</a>
+</nav>
+
+<div class="section-with-lines">
+    <div class="line"></div>
+    <div class="section-title-button">SKLEP TRYBU LIGHTSMP</div>
+    <div class="line"></div>
+</div>
+
+<div class="mode-options-container">
+    <div class="mode-options-wrapper">
+        <a href="lightsmp.html" class="option-button yellow">RANGI</a>
+        <a href="lightsmpprodukty.html" class="option-button grey">PRODUKTY</a>
+    </div>
+</div>
+
+<div class="rank-purchase-container">
+    <div class="rank-card">
+        <h3 class="rank-title vip">VIP</h3>
+        <a href="https://vishop.pl/shop/22178/server/20917" class="rank-purchase-button vip">KUP ZA 7.99 ZŁ</a>
+    </div>
+    <div class="rank-card">
+        <h3 class="rank-title svip">SVIP</h3>
+        <a href="https://vishop.pl/shop/22178/server/20917" class="rank-purchase-button svip">KUP ZA 19.99 ZŁ</a>
+    </div>
+    <div class="rank-card">
+        <h3 class="rank-title gvip">GVIP</h3>
+        <a href="https://vishop.pl/shop/22178/server/20917" class="rank-purchase-button gvip">KUP ZA 49.99 ZŁ</a>
+    </div>
+</div>
+
+<div class="rank-comparison-table-container">
+    <table class="rank-comparison-table">
+        <thead>
+            <tr>
+                <th></th> <th>VIP</th>
+                <th>SVIP</th>
+                <th>GVIP</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Czas trwania</th>
+                <td>30 DNI</td>
+                <td>30 DNI</td>
+                <td>30 DNI</td>
+            </tr>
+            <tr>
+                <th>Specjalny prefix</th>
+                <td>[VIP]</td>
+                <td>[SVIP]</td>
+                <td>[GVIP]</td>
+            </tr>
+            <tr>
+                <th>Dostępne zestawy</th>
+                <td>VIP</td>
+                <td>SVIP</td>
+                <td>GVIP</td>
+            </tr>
+            <tr>
+                <th>Epicki klucz w codziennym zestawie</th>
+                <td><span class="cross-mark">X</span></td>
+                <td><span class="cross-mark">X</span></td>
+                <td><span class="check-mark">✓</span></td>
+            </tr>
+            <tr>
+                <th>Dodatkowe $ za killa</th>
+                <td><span class="cross-mark">X</span></td>
+                <td>15$</td>
+                <td>30$</td>
+            </tr>
+            <tr>
+                <th>Przenośny crafting /wb</th>
+                <td><span class="cross-mark">X</span></td>
+                <td><span class="check-mark">✓</span></td>
+                <td><span class="check-mark">✓</span></td>
+            </tr>
+            <tr>
+                <th>Dostęp do komendy /repair</th>
+                <td><span class="cross-mark">X</span></td>
+                <td><span class="check-mark">✓</span></td>
+                <td><span class="check-mark">✓</span></td>
+            </tr>
+            <tr>
+                <th>Dostęp do komendy /repairall</th>
+                <td><span class="cross-mark">X</span></td>
+                <td><span class="cross-mark">X</span></td>
+                <td><span class="check-mark">✓</span></td>
+            </tr>
+            <tr>
+                <th>Dostęp do komendy /ec</th>
+                <td><span class="cross-mark">X</span></td>
+                <td><span class="check-mark">✓</span></td>
+                <td><span class="check-mark">✓</span></td>
+            </tr>
+            <tr>
+                <th>Powiększony drop ze strefy afk</th>
+                <td><span class="cross-mark">X</span></td>
+                <td>x2</td>
+                <td>x3</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<footer class="footer">
+    <div class="footer-logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="LightMC Logo">
+    </div>
+
+    <div class="footer-content">
+        <div class="footer-column footer-social-media">
+            <h3>SOCIAL MEDIA</h3>
+            <ul>
+                <li><a href="https://www.youtube.com/yourchannel" target="_blank">YOUTUBE</a></li>
+                <li><a href="https://dc.gg/lightmc.pl" target="_blank">DISCORD</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-buttons-container">
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+        <a href="https://dc.gg/lightmc.pl" target="_blank" class="footer-discord-button">NASZ DISCORD</a>
+    </div>
+
+    <div class="footer-text-normal">
+        COPYRIGHT 2025 LIGHTMC.PL. WSZELKIE PRAWA ZASTRZEŻONE<br>
+        WYKONANIE SPACEHOUSE<br><br>
+        PL - Serwer LightMC.pl nie jest w żaden sposób powiązany z firmą Mojang lub Microsoft.<br>
+        EN - LightMC.pl server is not associated with Mojang or Microsoft in any way.
+    </div>
+</footer>
+
+<script>
+    const links = document.querySelectorAll('.nav-link');
+
+    links.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+
+            // Dodaj klasę "clicked" na kliknięty element
+            link.classList.add('clicked');
+
+            // Po 200ms wróć do koloru czarnego i przejdź do strony
+            setTimeout(() => {
+                link.classList.remove('clicked');
+                window.location.href = link.getAttribute('href');
+            }, 200);
+        });
+    });
+
+    // Efekt animacji na logo dopóki myszka jest nad logo
+    const logo = document.getElementById('logo');
+
+    logo.addEventListener('mouseenter', () => {
+        logo.classList.add('animate');
+    });
+
+    logo.addEventListener('mouseleave', () => {
+        logo.classList.remove('animate');
+    });
+</script>
+
+</body>
+</html>

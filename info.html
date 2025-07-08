@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>LightMC.light-host.pl - Informacje</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: #f4f4f4;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            background-color: rgba(255, 255, 255, 0);
+            gap: 40px;
+        }
+
+        nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+
+        nav a.clicked {
+            color: #0055ff;
+        }
+
+        .logo {
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 70px;
+            transition: transform 0.3s ease;
+            /* Usunięto hover - przenieśliśmy efekt do animacji */
+        }
+
+        /* Animacja "folowania" */
+        @keyframes logo-wave {
+            0% {
+                transform: skewX(0deg);
+            }
+            25% {
+                transform: skewX(-10deg);
+            }
+            50% {
+                transform: skewX(10deg);
+            }
+            75% {
+                transform: skewX(-10deg);
+            }
+            100% {
+                transform: skewX(0deg);
+            }
+        }
+
+        /* Klasa do animacji - powtarzana w nieskończoność */
+        .logo.animate img {
+            animation: logo-wave 1.5s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .logo {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-link">STRONA GŁÓWNA</a>
+    <a href="regulamin.html" class="nav-link">REGULAMIN</a>
+    <div class="logo" id="logo">
+        <img src="https://i.imgur.com/bm8pv3x.png" alt="Anarchia Logo">
+    </div>
+    <a href="sklep.html" class="nav-link">SKLEP SERWEROWY</a>
+    <a href="info.html" class="nav-link">WAŻNE INFORMACJE</a>
+</nav>
+
+<script>
+    const links = document.querySelectorAll('.nav-link');
+
+    links.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+
+            // Dodaj klasę "clicked" na kliknięty element
+            link.classList.add('clicked');
+
+            // Po 200ms wróć do koloru czarnego i przejdź do strony
+            setTimeout(() => {
+                link.classList.remove('clicked');
+                window.location.href = link.getAttribute('href');
+            }, 200);
+        });
+    });
+
+    // Efekt animacji na logo dopóki myszka jest nad logo
+    const logo = document.getElementById('logo');
+
+    logo.addEventListener('mouseenter', () => {
+        logo.classList.add('animate');
+    });
+
+    logo.addEventListener('mouseleave', () => {
+        logo.classList.remove('animate');
+    });
+</script>
+
+</body>
+</html>
